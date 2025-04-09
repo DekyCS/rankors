@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -7,6 +8,8 @@ import {
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react"
+import { signout } from "@/lib/auth-actions"
+import { createClient } from "@/utils/supabase/client"
 
 import {
   Avatar,
@@ -30,7 +33,7 @@ import {
 } from "@/components/ui/sidebar"
 
 export function NavUser({
-  user,
+  user: initialUser,
 }: {
   user: {
     name: string
@@ -39,6 +42,26 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const [user, setUser] = useState<any>(initialUser)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser()
+      
+      if (authUser) {
+        setUser({
+          name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || initialUser.name,
+          email: authUser.email || initialUser.email,
+          avatar: initialUser.avatar, // Keep the avatar from props since Supabase might not have one
+        })
+      }
+    }
+    
+    fetchUser()
+  }, [initialUser])
 
   return (
     <SidebarMenu>
@@ -98,7 +121,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => signout()}>
               <IconLogout />
               Log out
             </DropdownMenuItem>
