@@ -7,10 +7,14 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { requireAuth } from "@/utils/auth/requireAuth"
 
 import data from "./data.json"
 
-export default function Page() {
+export default async function Page() {
+  // This will redirect to login if not authenticated
+  await requireAuth()
+  
   return (
     <SidebarProvider
       style={

@@ -1,8 +1,14 @@
-import { GalleryVerticalEnd } from "lucide-react"
+"use client";
 
+import { GalleryVerticalEnd } from "lucide-react"
 import { LoginForm } from "@/app/login/components/login-form"
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
+  // Use the client-side useSearchParams hook instead
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams?.get('redirectTo') || '/';
+  
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">
@@ -12,7 +18,7 @@ export default function LoginPage() {
           </div>
           Acme Inc.
         </a>
-        <LoginForm />
+        <LoginForm redirectUrl={redirectUrl} />
       </div>
     </div>
   )

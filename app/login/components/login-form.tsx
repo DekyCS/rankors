@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,13 +11,31 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { login } from "@/lib/auth-actions"
 import SignInWithGoogleButton from "./SignInWithGoogleButton"
+import { handleLogin } from "../actions"
+import { useRef } from "react";
+
+interface LoginFormProps extends React.ComponentProps<"div"> {
+  redirectUrl?: string;
+}
 
 export function LoginForm({
   className,
+  redirectUrl = '/',
   ...props
-}: React.ComponentProps<"div">) {
+}: LoginFormProps) {
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (formRef.current) {
+      const formData = new FormData(formRef.current);
+      formData.append('redirectUrl', redirectUrl);
+      await handleLogin(formData);
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -30,7 +50,7 @@ export function LoginForm({
             <div className="flex flex-col gap-4">
               <SignInWithGoogleButton />
             </div>
-            <form action="">
+            <form ref={formRef} onSubmit={onSubmit}>
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">
                   Or continue with
@@ -59,7 +79,7 @@ export function LoginForm({
                   </div>
                   <Input id="password" name="password" type="password" required />
                 </div>
-                <Button type="submit" formAction={login} className="w-full">
+                <Button type="submit" className="w-full">
                   Login
                 </Button>
               </div>

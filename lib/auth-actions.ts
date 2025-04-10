@@ -21,8 +21,11 @@ export async function login(formData: FormData) {
     redirect("/error");
   }
 
+  // Get the redirect URL from the form data, defaulting to home page
+  const redirectUrl = (formData.get("redirectUrl") as string) || "/";
+
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect(redirectUrl);
 }
 
 export async function signup(formData: FormData) {
@@ -66,9 +69,15 @@ export async function signout() {
 
 export async function signInWithGoogle() {
   const supabase = await createClient();
+  
+  // Use a hardcoded callback URL - this is the most reliable approach
+  // Make sure this matches the callback route we created
+  const redirectTo = 'http://localhost:3000/auth/callback';
+  
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
+      redirectTo: redirectTo,
       queryParams: {
         access_type: "offline",
         prompt: "consent",

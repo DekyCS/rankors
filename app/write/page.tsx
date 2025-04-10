@@ -12,8 +12,12 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { requireAuth } from "@/utils/auth/requireAuth"
 
-export default function Page() {
+export default async function Page() {
+  // This will redirect to login if not authenticated
+  await requireAuth()
+  
   return (
     <SidebarProvider>
       <SidebarLeft />
