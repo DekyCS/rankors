@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,13 +12,52 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { signup } from "@/lib/auth-actions"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import SignInWithGoogleButton from "./SignInWithGoogleButton"
+import { signupWithEmailVerification } from "../actions"
+import { useRouter } from "next/navigation";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [showEmailAlert, setShowEmailAlert] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    
+    const formData = new FormData(e.currentTarget);
+    const result = await signupWithEmailVerification(formData);
+    
+    setIsLoading(false);
+    
+    if (result.success) {
+      setUserEmail(result.email);
+      setShowEmailAlert(true);
+    } else {
+      setError(result.error || "An error occurred during signup");
+    }
+  };
+
+  const handleAlertClose = () => {
+    setShowEmailAlert(false);
+    router.push("/login");
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -26,7 +68,7 @@ export function SignupForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
                 <SignInWithGoogleButton />
@@ -73,8 +115,11 @@ export function SignupForm({
                   <Label htmlFor="password">Password</Label>
                   <Input id="password" name="password" type="password" required />
                 </div>
-                <Button type="submit" formAction={signup} className="w-full">
-                  Sign up
+                {error && (
+                  <div className="text-destructive text-sm">{error}</div>
+                )}
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Signing up..." : "Sign up"}
                 </Button>
               </div>
               <div className="text-center text-sm">
@@ -91,6 +136,26 @@ export function SignupForm({
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>.
       </div>
+
+      {/* Email Verification Alert Dialog */}
+      <AlertDialog open={showEmailAlert} onOpenChange={setShowEmailAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Check your email</AlertDialogTitle>
+            <AlertDialogDescription>
+              We've sent a verification link to <strong>{userEmail}</strong>. 
+              Please check your inbox and click the link to verify your account.
+              <br /><br />
+              You'll need to verify your email before you can log in.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleAlertClose}>
+              Got it
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
