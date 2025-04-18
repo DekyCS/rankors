@@ -42,7 +42,11 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
-  const [user, setUser] = useState<any>(initialUser)
+  const [user, setUser] = useState<{
+    name: string
+    email: string
+    avatar: string
+  }>(initialUser)
   const supabase = createClient()
 
   useEffect(() => {
@@ -61,7 +65,7 @@ export function NavUser({
     }
     
     fetchUser()
-  }, [initialUser])
+  }, [initialUser, supabase.auth])
 
   return (
     <SidebarMenu>

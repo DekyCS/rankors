@@ -143,10 +143,10 @@ export function SignupForm({
           <AlertDialogHeader>
             <AlertDialogTitle>Check your email</AlertDialogTitle>
             <AlertDialogDescription>
-              We've sent a verification link to <strong>{userEmail}</strong>. 
+              We&apos;ve sent a verification link to <strong>{userEmail}</strong>. 
               Please check your inbox and click the link to verify your account.
               <br /><br />
-              You'll need to verify your email before you can log in.
+              You&apos;ll need to verify your email before you can log in.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
